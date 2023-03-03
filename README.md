@@ -1,0 +1,2 @@
+# postSalmon
+analyse Salmon results
