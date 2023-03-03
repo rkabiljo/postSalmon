@@ -14,5 +14,5 @@ ENST00000456328.2 1657 1356.000 0.000000 0.000
 ```
 Run this to change it, just change the path:
 ```
- find /Users/renatakabiljo/Documents/MNDquant/pawsey0360/MNDsalmon/MNDquant/ -type f -name '*.sf' -exec sh -c 'awk -F "\t" "{gsub(/\|.*/, \"\", \$1)}1" "$1" > tmp && mv tmp "$1"' _ {} \; 
+ find /Users/renatakabiljo/Documents/MNDquant/pawsey0360/MNDsalmon/MNDquant/ -type f -name '*.sf' -exec sh -c 'awk -F "\t" "{gsub(/\|.*/, \"\", \$1)}1" OFS="\t" "$1" > tmp && mv tmp "$1"' _ {} \;  
 ```
