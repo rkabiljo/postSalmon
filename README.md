@@ -16,3 +16,9 @@ Run this to change it, just change the path:
 ```
  find /Users/renatakabiljo/Documents/MNDquant/pawsey0360/MNDsalmon/MNDquant/ -type f -name '*.sf' -exec sh -c 'awk -F "\t" "{gsub(/\|.*/, \"\", \$1)}1" OFS="\t" "$1" > tmp && mv tmp "$1"' _ {} \;  
 ```
+
+or on Create
+
+```
+find /scratch/prj/alstargets/HG38Salmon/quant/ -type f -name '*.sf' -exec sh -c 'awk -F "\t" "{gsub(/\|.*/, \"\", \$1)}1" OFS="\t" "$1" > tmp && mv tmp "$1"' _ {} \;
+```
