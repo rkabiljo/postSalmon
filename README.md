@@ -264,3 +264,46 @@ plotProportions(d, res$gene_id[idx], "condition")
 ```
 
 ```
+# stageR following DRIMSeq
+
+```
+#construct a vector of pValues
+pScreen <- res$pvalue
+strp <- function(x) substr(x,1,15)
+names(pScreen) <- strp(res$gene_id)
+
+#We construct a one column matrix of the confirmation p-values:
+
+pConfirmation <- matrix(res.txp$pvalue, ncol=1)
+rownames(pConfirmation) <- strp(res.txp$feature_id)
+#We arrange a two column data.frame with the transcript and gene identifiers.
+
+tx2gene <- res.txp[,c("feature_id", "gene_id")]
+for (i in 1:2) tx2gene[,i] <- strp(tx2gene[,i])
+```
+## load and run StageR
+```
+library(stageR)
+stageRObj <- stageRTx(pScreen=pScreen, pConfirmation=pConfirmation,
+                      pScreenAdjusted=FALSE, tx2gene=tx2gene)
+stageRObj <- stageWiseAdjustment(stageRObj, method="dtu", alpha=0.05)
+suppressWarnings({
+  drim.padj <- getAdjustedPValues(stageRObj, order=FALSE,
+                                  onlySignificantGenes=TRUE)
+})
+
+#The returned adjusted p-values are based on a stage-wise testing approach and are only valid for the provided target OFDR level of 5%. If a different #target OFDR level is of interest,the entire adjustment should be re-run. 
+
+head(drim.padj)
+```
+<br>
+           geneID            txID       gene transcript
+1 ENSG00000228794 ENST00000445118 0.04318575  1.0000000
+2 ENSG00000228794 ENST00000669922 0.04318575  1.0000000
+3 ENSG00000228794 ENST00000667414 0.04318575  1.0000000
+4 ENSG00000228794 ENST00000666741 0.04318575  1.0000000
+5 ENSG00000228794 ENST00000623070 0.04318575  0.3442181
+6 ENSG00000228794 ENST00000658846 0.04318575  1.0000000
+```
+write.table(drim.padj,"drim_padj.txt",sep="\t",quote=FALSE)
+```
