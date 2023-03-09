@@ -37,6 +37,15 @@ library(GenomicFeatures)
 library(readr)
 
 txdb <- makeTxDbFromGFF("~/Documents/SalmonTarget/gencode.v38.chr_patch_hapl_scaff.annotation.gtf")
+txdb.filename <- "gencode.v38.hr_patch_hapl_scaff.annotation.sqlite"
+saveDb(txdb, txdb.filename)
+
+txdf <- select(txdb, keys(txdb, "GENEID"), "TXNAME", "GENEID")
+tab <- table(txdf$GENEID)
+tab
+txdf$ntx <- tab[match(txdf$GENEID, names(tab))]
+head(txdf)
+dim(txdf)
 columns(txdb)
 keytypes(txdb)
 k <- keys(txdb, keytype = "GENEID")
@@ -77,6 +86,17 @@ head(txiTranscripts$counts)
 colnames(txiTranscripts$counts)<-samples3$sample_name
 head(txiTranscripts$counts)
 ```
+## another way to read - summarise transcripts to genes later
+```
+txi.sum <- summarizeToGene(txiTranscripts, tx2gene)
+#check that it's the same as before
+all.equal(txiGenes$counts, txi.sum$counts)
+```
+## or different flags to summarise transcripts, depends on the needs of post analysis
+```
+txiTranscripts <- tximport(files, type="salmon", txOut =TRUE,countsFromAbundance = "dtuScaledTPM",tx2gene=tx2gene )
+```
+
 
 ## DESeq2 with the gene tximport object
 ```
@@ -141,5 +161,20 @@ topSalmon<-head(resFilteredSalmon,100)
 topStar<-head(resFilteredStar,100)
 length(intersect(rownames(topSalmon),rownames(topStar)))
 ```
-
-
+## DRIMSeq
+```
+cts <- txiTranscripts$counts
+dim(cts)
+cts <- cts[rowSums(cts) > 0,]
+dim(cts)
+cts[1:3,1:3]
+colnames(cts)<-samples3$sample_name
+cts[1:3,1:3]
+range(colSums(cts)/1e6)
+all(rownames(cts) %in% txdf$TXNAME)
+txdf <- txdf[match(rownames(cts),txdf$TXNAME),]
+all(rownames(cts) == txdf$TXNAME)
+counts <- data.frame(gene_id=txdf$GENEID,
+feature_id=txdf$TXNAME,
+cts)
+```
