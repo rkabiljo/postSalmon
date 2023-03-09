@@ -161,7 +161,8 @@ topSalmon<-head(resFilteredSalmon,100)
 topStar<-head(resFilteredStar,100)
 length(intersect(rownames(topSalmon),rownames(topStar)))
 ```
-## DRIMSeq
+# DRIMSeq
+## prepare for DRMSeq
 ```
 cts <- txiTranscripts$counts
 dim(cts)
@@ -177,4 +178,89 @@ all(rownames(cts) == txdf$TXNAME)
 counts <- data.frame(gene_id=txdf$GENEID,
 feature_id=txdf$TXNAME,
 cts)
+ colnames(counts) <- gsub("\\.", "-", colnames(counts))
+```
+## actual DRIMSeq
+```
+BiocManager::install("DRIMSeq")
+library(DRIMSeq)
+head(phe)
+table(phe$Status)
+ samps<-phe
+samps$sample_id <- rownames(samps)
+samps<-samps[,c("sample_id","Status")]
+colnames(samps)<-c("sample_id","condition")
+head(samps)
+
+d <- dmDSdata(counts=counts, samples=samps)
+d
+#An object of class dmDSdata 
+#with 50204 genes and 231 samples
+#* data accessors: counts(), samples()
+counts(d[1,])[,1:4]
+#            gene_id        feature_id CGND.HRA.00055 CGND.HRA.00057
+#1 ENSG00000223972.5 ENST00000456328.2              0       1.756436
+n<-231
+#n.small<-36
+n.small<-20
+
+d <- dmFilter(d,
+               min_samps_feature_expr=n.small, min_feature_expr=10,
+              min_samps_feature_prop=n.small, min_feature_prop=0.1,
+               min_samps_gene_expr=n, min_gene_expr=10)
+d
+#An object of class dmDSdata 
+#with 11685 genes and 231 samples
+#* data accessors: counts(), samples()
+
+table(table(counts(d)$gene_id))
+
+#   2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   18 
+# 2212 2357 2203 1857 1294  850  452  252  124   45   19   11    4    3    1    1 
+ 
+design_full <- model.matrix(~condition, data=DRIMSeq::samples(d))
+colnames(design_full)
+#[1] "(Intercept)" "condition2" 
+set.seed(1) 
+system.time({
+     d <- dmPrecision(d, design=design_full)
+     d <- dmFit(d, design=design_full)
+     d <- dmTest(d, coef="condition2")
+ })
+#! Using a subset of 0.1 genes to estimate common precision !
+#! Using common_precision = 13.1556 as prec_init !
+#! Using 0 as a shrinkage factor !
+
+#    user   system  elapsed 
+#1189.737   14.917 1206.280 
+res <- DRIMSeq::results(d)
+head(res)
+#             gene_id         lr df      pvalue adj_pvalue
+#1  ENSG00000241860.7 11.9952455  4 0.017386656 0.10474233
+#2 ENSG00000228463.10  2.9162365  4 0.571939454 0.77074604
+#3 ENSG00000237094.12  3.4045073  5 0.637883545 0.81502303
+#4 ENSG00000237491.10 19.5958359  8 0.011978220 0.08399134
+#5 ENSG00000228794.10 20.7784609  7 0.004112255 0.04317466
+#6 ENSG00000188976.11  0.3264632  2 0.849394428 0.93600846
+res.txp <- DRIMSeq::results(d, level="feature")
+head(res.txp)
+
+#             gene_id        feature_id          lr df       pvalue adj_pvalue
+#1  ENSG00000241860.7 ENST00000484859.1  0.12108442  1 0.7278613116  0.9862548
+#2  ENSG00000241860.7 ENST00000466557.6 -0.05232595  1 1.0000000000  1.0000000
+#3  ENSG00000241860.7 ENST00000662089.1  2.39460844  1 0.1217542319  0.5529369
+#4  ENSG00000241860.7 ENST00000491962.1 11.42866590  1 0.0007231959  0.0332898
+#5  ENSG00000241860.7 ENST00000655252.1  0.99800937  1 0.3177926612  0.7897425
+#6 ENSG00000228463.10 ENST00000442116.1 -0.03186604  1 1.0000000000  1.0000000
+
+no.na <- function(x) ifelse(is.na(x), 1, x)
+res$pvalue <- no.na(res$pvalue)
+res.txp$pvalue <- no.na(res.txp$pvalue)
+idx <- which(res$adj_pvalue < 0.05)[1]
+res[idx,]
+#             gene_id       lr df      pvalue adj_pvalue
+#5 ENSG00000228794.10 20.77846  7 0.004112255 0.04317466
+plotProportions(d, res$gene_id[idx], "condition")
+```
+
 ```
