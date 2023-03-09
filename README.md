@@ -263,7 +263,7 @@ res[idx,]
 plotProportions(d, res$gene_id[idx], "condition")
 ```
 
-```
+
 # stageR following DRIMSeq
 
 ```
@@ -296,7 +296,8 @@ suppressWarnings({
 
 head(drim.padj)
 ```
-<br>
+output:
+```
            geneID            txID       gene transcript
 1 ENSG00000228794 ENST00000445118 0.04318575  1.0000000
 2 ENSG00000228794 ENST00000669922 0.04318575  1.0000000
@@ -304,6 +305,7 @@ head(drim.padj)
 4 ENSG00000228794 ENST00000666741 0.04318575  1.0000000
 5 ENSG00000228794 ENST00000623070 0.04318575  0.3442181
 6 ENSG00000228794 ENST00000658846 0.04318575  1.0000000
+```
 ```
 write.table(drim.padj,"drim_padj.txt",sep="\t",quote=FALSE)
 ```
