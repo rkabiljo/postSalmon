@@ -50,10 +50,11 @@ dim(cortexTarget)
 samples2 <- read.table("~/Documents/SalmonTarget/TargetALSRNAMetadata09092021_1270.txt",sep="\t",header=TRUE,row.names=1)
 #coldata2 <- data.frame(files, names=names(files), samples2)
 pheno<-samples2[samples$sample_name,]
-
+```
 
 
 ## Read with tximport
+```
 setwd("~/Documents/MNDquantNew")
 #specify which files to read -for example whatever is in my motor cortex matrix
 files<-list.files(pattern = "quant.sf", recursive = TRUE)
@@ -78,6 +79,7 @@ head(txiTranscripts$counts)
 ```
 
 ## DESeq2 with the gene tximport object
+```
 head(phe)
 phe$Sex<- as.factor(phe$Sex)
 phe$Status<- as.factor(phe$Status)
