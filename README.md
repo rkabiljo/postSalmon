@@ -52,9 +52,10 @@ columns(txdb)
 keytypes(txdb)
 k <- keys(txdb, keytype = "GENEID")
 tx2gene <- select(txdb, keys = k, keytype = "GENEID", columns = "TXNAME")
+tx2gene<-tx2gene[,c(2,1)]
 write.table(as.data.frame(tx2gene), file="tx2gene.txt", sep="\t")
 ```
-## Get phenotype data for the motor cortex region
+## Get phenotype data for the motor cortex region  - OLD,IGNORE
 ```
 cortexTarget<-read.table("~/Documents/SalmonTarget/samples.design.updated.site.sv1.sizefactors234.txt",header=TRUE,row.names = 1,sep="\t")
 dim(cortexTarget)
@@ -62,31 +63,32 @@ samples2 <- read.table("~/Documents/SalmonTarget/TargetALSRNAMetadata09092021_12
 #coldata2 <- data.frame(files, names=names(files), samples2)
 pheno<-samples2[samples$sample_name,]
 ```
-
+## Get phenotype data for the motor cortex region - with new rules for cases/controls
 
 ## Read with tximport
 ```
 setwd("~/Documents/MNDquantNew")
 #specify which files to read -for example whatever is in my motor cortex matrix
-files<-list.files(pattern = "quant.sf", recursive = TRUE)
-samples3 <- data.frame(sample_name = gsub("\\.sf", "", files), file_name = files)
-samples3$sample_name <- sapply(strsplit(samples3$file_name, "/"), head, n = 1)
-notHere<-rownames(cortexTarget)[!rownames(cortexTarget) %in% samples3$sample_name]
-here<-rownames(cortexTarget)[rownames(cortexTarget) %in% samples3$sample_name]
-cortexTarget<-cortexTarget[rownames(cortexTarget) %in% here,]
-phe<-cortexTarget[,c(1,2,3,4,5,6)]
-samples3<-samples3[samples3$sample_name %in% here,]
-files<-samples3$file_name
+#this is to see what's in the directlry
+fileList<-list.files(pattern = "quant.sf", recursive = TRUE)
+#and this is from the phenotype table
+files<-paste0(rownames(pheCortexAll),"/quant.sf")
+all(files %in% fileList)
+#[1] TRUE
+
 txiGenes <- tximport(files, type="salmon", tx2gene=tx2gene, txOut = FALSE)
 dim(txiGenes$counts)
+#[1] 60230   272
 head(txiGenes$counts)
-colnames(txiGenes$counts)<-samples3$sample_name
+colnames(txiGenes$counts)<-rownames(pheCortexAll)
 
 
 txiTranscripts <- tximport(files, type="salmon", txOut = TRUE)
 head(txiTranscripts$counts)
-colnames(txiTranscripts$counts)<-samples3$sample_name
-head(txiTranscripts$counts)
+dim(txiTranscripts$counts)
+#[1] 236186    272
+colnames(txiTranscripts$counts)<-rownames(pheCortexAll)
+txiTranscripts$counts[1:5,1:5]
 ```
 ## another way to read - summarise transcripts to genes later
 ```
