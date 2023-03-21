@@ -170,11 +170,14 @@ length(intersect(rownames(topSalmon),rownames(topStar)))
 ```
 cts <- txiTranscripts$counts
 dim(cts)
+#[1] 236186    272
 cts <- cts[rowSums(cts) > 0,]
 dim(cts)
+#[1] 216530    272
 cts[1:3,1:3]
-colnames(cts)<-samples3$sample_name
-cts[1:3,1:3]
+#if needed, set names
+#colnames(cts)<-samples3$sample_name
+#cts[1:3,1:3]
 range(colSums(cts)/1e6)
 all(rownames(cts) %in% txdf$TXNAME)
 txdf <- txdf[match(rownames(cts),txdf$TXNAME),]
@@ -182,6 +185,7 @@ all(rownames(cts) == txdf$TXNAME)
 counts <- data.frame(gene_id=txdf$GENEID,
 feature_id=txdf$TXNAME,
 cts)
+#hyphens were replaced by ., and I am reverting to hyphens
  colnames(counts) <- gsub("\\.", "-", colnames(counts))
 ```
 ## actual DRIMSeq
