@@ -39,6 +39,8 @@ library(readr)
 txdb <- makeTxDbFromGFF("~/Documents/SalmonTarget/gencode.v38.chr_patch_hapl_scaff.annotation.gtf")
 txdb.filename <- "gencode.v38.hr_patch_hapl_scaff.annotation.sqlite"
 saveDb(txdb, txdb.filename)
+#if you are starting from the db
+#txdb<-loadDb("~/Documents/swimmongDownstream/gencode.v38.hr_patch_hapl_scaff.annotation.sqlite")
 
 txdf <- select(txdb, keys(txdb, "GENEID"), "TXNAME", "GENEID")
 tab <- table(txdf$GENEID)
