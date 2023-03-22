@@ -376,3 +376,29 @@ res.txp.filt$adj_pvalue[filt] <- 1
 ```
 write.table(res.txp.filt,"res.txp.filt.txt",sep="\t",quote=FALSE)
 ```
+
+## DEXSeq - an alternative, starting from DRIM
+```
+library(DEXSeq)
+sample.data <- DRIMSeq::samples(d)
+count.data <- round(as.matrix(counts(d)[,-c(1:2)]))
+head(sample.data)
+dxd <- DEXSeqDataSet(countData=count.data,
+sampleData=sample.data,
+design=~sample + exon + condition:exon,
+featureID=counts(d)$feature_id,
+groupID=counts(d)$gene_id)
+sample.data$condition<-as.factor(sample.data$condition)
+dxd <- DEXSeqDataSet(countData=count.data,
+sampleData=sample.data,
+design=~sample + exon + condition:exon,
+featureID=counts(d)$feature_id,
+groupID=counts(d)$gene_id)
+
+system.time({
+dxd <- estimateSizeFactors(dxd)
+dxd <- estimateDispersions(dxd, quiet=TRUE)
+dxd <- testForDEU(dxd, reducedModel=~sample + exon)
+})
+
+```
