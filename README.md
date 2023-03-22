@@ -338,6 +338,15 @@ output:
 ```
 write.table(drim.padj,"drim_padj.txt",sep="\t",quote=FALSE)
 ```
+### extract significant geness and transcripts
+```
+sigGenes<-getSignificantGenes(stageRObj)
+sigTranscripts<-getSignificantTx(stageRObj)
+write.table(sigGenes,"~/Documents/swimmongDownstream/significantGenesStageR.txt",sep="\t",quote=FALSE)
+write.table(sigTranscripts,"~/Documents/swimmongDownstream/significantTxStageR.txt",sep="\t",quote=FALSE)
+
+```
+
 ## Post-hoc filtering on the standard deviation in proportions
 ```
 res.txp.filt <- DRIMSeq::results(d, level="feature")
