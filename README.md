@@ -278,8 +278,20 @@ res[idx,]
 #             gene_id       lr df      pvalue adj_pvalue
 #5 ENSG00000228794.10 20.77846  7 0.004112255 0.04317466
 plotProportions(d, res$gene_id[idx], "condition")
-```
 
+plotProportions(d, "ENSG00000165280.18", "condition",plot_type = "boxplot1")
+```
+### Order and save results
+```
+res.txp.ordered <- res.txp[order(res.txp$adj_pvalue),]
+write.table(res.txp.ordered,"~/Documents/swimmongDownstream/DrimseqRes_res.txp.ordered.txt",sep="\t",quote=FALSE)
+res.ordered <- res[order(res$adj_pvalue),]
+write.table(res.ordered,"~/Documents/swimmongDownstream/DrimseqRes_res.ordered.txt",sep="\t",quote=FALSE)
+
+idx <- which(res.txp$adj_pvalue < 0.05)
+> length(idx)
+[1] 1370
+```
 
 # stageR following DRIMSeq
 
