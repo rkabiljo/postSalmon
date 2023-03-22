@@ -198,6 +198,7 @@ table(phe$Status)
 samps$sample_id <- rownames(samps)
 samps<-samps[,c("sample_id","Status")]
 colnames(samps)<-c("sample_id","condition")
+samps$condition<-as.factor(samps$condition)
 head(samps)
 
 d <- dmDSdata(counts=counts, samples=samps)
