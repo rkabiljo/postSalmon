@@ -205,14 +205,15 @@ head(samps)
 d <- dmDSdata(counts=counts, samples=samps)
 d
 #An object of class dmDSdata 
-#with 50204 genes and 231 samples
+#with 50632 genes and 272 samples
 #* data accessors: counts(), samples()
 counts(d[1,])[,1:4]
-#            gene_id        feature_id CGND.HRA.00055 CGND.HRA.00057
-#1 ENSG00000223972.5 ENST00000456328.2              0       1.756436
-n<-231
+#            gene_id        feature_id CGND.HRA.00596 CGND.HRA.00646
+#1 ENSG00000223972.5 ENST00000456328.2              0       1.115553
+
+n<-272
 #n.small<-36
-n.small<-20
+n.small<-37
 
 d <- dmFilter(d,
                min_samps_feature_expr=n.small, min_feature_expr=10,
@@ -220,13 +221,13 @@ d <- dmFilter(d,
                min_samps_gene_expr=n, min_gene_expr=10)
 d
 #An object of class dmDSdata 
-#with 11685 genes and 231 samples
+#with 10266 genes and 272 samples
 #* data accessors: counts(), samples()
 
 table(table(counts(d)$gene_id))
 
-#   2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   18 
-# 2212 2357 2203 1857 1294  850  452  252  124   45   19   11    4    3    1    1 
+#    2    3    4    5    6    7    8    9   10   11   12   14 
+#2259 2411 2119 1596 1005  514  220   97   33    7    4    1 
  
 design_full <- model.matrix(~condition, data=DRIMSeq::samples(d))
 colnames(design_full)
@@ -242,19 +243,20 @@ system.time({
 #! Using 0 as a shrinkage factor !
 
 #    user   system  elapsed 
-#1189.737   14.917 1206.280 
+# 987.215   22.163 1012.409 
 res <- DRIMSeq::results(d)
 head(res)
 ```
 Output:
 ```
-#             gene_id         lr df      pvalue adj_pvalue
-#1  ENSG00000241860.7 11.9952455  4 0.017386656 0.10474233
-#2 ENSG00000228463.10  2.9162365  4 0.571939454 0.77074604
-#3 ENSG00000237094.12  3.4045073  5 0.637883545 0.81502303
-#4 ENSG00000237491.10 19.5958359  8 0.011978220 0.08399134
-#5 ENSG00000228794.10 20.7784609  7 0.004112255 0.04317466
-#6 ENSG00000188976.11  0.3264632  2 0.849394428 0.93600846
+#              gene_id         lr df      pvalue adj_pvalue
+#1  ENSG00000241860.7 15.9176717  4 0.003131649 0.03386405
+#2 ENSG00000237094.12  7.7036345  4 0.103057939 0.30914375
+#3 ENSG00000237491.10 18.9855671  7 0.008232674 0.06409992
+#4  ENSG00000230092.7  0.2030046  1 0.652306490 0.82104369
+#5 ENSG00000228794.10 18.3125611  5 0.002579141 0.03007630
+#6 ENSG00000188976.11  0.2613558  2 0.877500363 0.94361403
+
 ```
 ```
 res.txp <- DRIMSeq::results(d, level="feature")
@@ -262,18 +264,47 @@ head(res.txp)
 ```
 Output
 ```
-#             gene_id        feature_id          lr df       pvalue adj_pvalue
-#1  ENSG00000241860.7 ENST00000484859.1  0.12108442  1 0.7278613116  0.9862548
-#2  ENSG00000241860.7 ENST00000466557.6 -0.05232595  1 1.0000000000  1.0000000
-#3  ENSG00000241860.7 ENST00000662089.1  2.39460844  1 0.1217542319  0.5529369
-#4  ENSG00000241860.7 ENST00000491962.1 11.42866590  1 0.0007231959  0.0332898
-#5  ENSG00000241860.7 ENST00000655252.1  0.99800937  1 0.3177926612  0.7897425
-#6 ENSG00000228463.10 ENST00000442116.1 -0.03186604  1 1.0000000000  1.0000000
+#    gene_id        feature_id          lr df       pvalue adj_pvalue
+#1  ENSG00000241860.7 ENST00000484859.1  0.10925423  1 0.7409947831 0.96718722
+#2  ENSG00000241860.7 ENST00000466557.6  0.09413004  1 0.7589908896 0.97209538
+#3  ENSG00000241860.7 ENST00000662089.1  4.43238170  1 0.0352632682 0.29019308
+#4  ENSG00000241860.7 ENST00000491962.1 13.73742817  1 0.0002102231 0.01361563
+#5  ENSG00000241860.7 ENST00000655252.1  1.35295757  1 0.2447617350 0.69140984
+#6 ENSG00000237094.12 ENST00000455464.7  0.03503514  1 0.8515220399 1.00000000
+```
+Check how many na's - these can be useful later as they can represent complete isoform switches
+```
+table(is.na(res$pvalue))
+
+#FALSE  TRUE 
+#10262     4 
+ nas<-res[is.na(res$pvalue),]
+ nas
+#                gene_id lr df pvalue adj_pvalue
+#210  ENSG00000060656.20 NA  6     NA         NA
+#6627 ENSG00000231607.13 NA  5     NA         NA
+#6695 ENSG00000134871.19 NA  7     NA         NA
+#7819 ENSG00000102984.15 NA  7     NA         NA
+write.table(nas,"Target_NAs_drmseqRes.txt",sep="\t",quote=FALSE)
+table(is.na(res.txp$pvalue))
+
+#FALSE  TRUE 
+#40908    29 
+ nas<-res.txp[is.na(res.txp$pvalue),]
+ write.table(nas,"Target_NAs_drmseqRes.Txp.txt",sep="\t",quote=FALSE)
+ dim(res)
+#[1] 10266     5
+ dim(res.txp)
+#[1] 40937     6
 ```
 ```
 no.na <- function(x) ifelse(is.na(x), 1, x)
 res$pvalue <- no.na(res$pvalue)
 res.txp$pvalue <- no.na(res.txp$pvalue)
+idx <- which(res$adj_pvalue < 0.05)
+length(idx)
+#[1] 1157
+
 idx <- which(res$adj_pvalue < 0.05)[1]
 res[idx,]
 #             gene_id       lr df      pvalue adj_pvalue
@@ -289,9 +320,6 @@ write.table(res.txp.ordered,"~/Documents/swimmongDownstream/DrimseqRes_res.txp.o
 res.ordered <- res[order(res$adj_pvalue),]
 write.table(res.ordered,"~/Documents/swimmongDownstream/DrimseqRes_res.ordered.txt",sep="\t",quote=FALSE)
 
-idx <- which(res.txp$adj_pvalue < 0.05)
-> length(idx)
-[1] 1370
 ```
 
 # stageR following DRIMSeq
@@ -329,12 +357,12 @@ head(drim.padj)
 output:
 ```
            geneID            txID       gene transcript
-1 ENSG00000228794 ENST00000445118 0.04318575  1.0000000
-2 ENSG00000228794 ENST00000669922 0.04318575  1.0000000
-3 ENSG00000228794 ENST00000667414 0.04318575  1.0000000
-4 ENSG00000228794 ENST00000666741 0.04318575  1.0000000
-5 ENSG00000228794 ENST00000623070 0.04318575  0.3442181
-6 ENSG00000228794 ENST00000658846 0.04318575  1.0000000
+1 ENSG00000241860 ENST00000484859 0.03387725 1.000000000
+2 ENSG00000241860 ENST00000466557 0.03387725 1.000000000
+3 ENSG00000241860 ENST00000662089 0.03387725 0.939479356
+4 ENSG00000241860 ENST00000491962 0.03387725 0.005600737
+5 ENSG00000241860 ENST00000655252 0.03387725 1.000000000
+6 ENSG00000228794 ENST00000445118 0.03008803 1.000000000
 ```
 ```
 write.table(drim.padj,"drim_padj.txt",sep="\t",quote=FALSE)
@@ -345,6 +373,10 @@ sigGenes<-getSignificantGenes(stageRObj)
 sigTranscripts<-getSignificantTx(stageRObj)
 write.table(sigGenes,"~/Documents/swimmongDownstream/significantGenesStageR.txt",sep="\t",quote=FALSE)
 write.table(sigTranscripts,"~/Documents/swimmongDownstream/significantTxStageR.txt",sep="\t",quote=FALSE)
+dim(sigGenes)
+#[1] 1156    1
+ dim(sigTranscripts)
+#[1] 1394    1
 
 ```
 
@@ -362,17 +394,22 @@ smallProportionSD <- function(d, filter=0.1) {
 filt <- smallProportionSD(d)
 res.txp.filt$pvalue[filt] <- 1 
 res.txp.filt$adj_pvalue[filt] <- 1
+
+idx <- which(res.txp.file$adj_pvalue < 0.05)
+length(idx)
+#[1] 487
+
  head(res.txp.filt)
  ```
  Output:
  ```
-             gene_id        feature_id          lr df       pvalue adj_pvalue
-1  ENSG00000241860.7 ENST00000484859.1  0.12108442  1 1.0000000000  1.0000000
-2  ENSG00000241860.7 ENST00000466557.6 -0.05232595  1 1.0000000000  1.0000000
-3  ENSG00000241860.7 ENST00000662089.1  2.39460844  1 0.1217542319  0.5529369
-4  ENSG00000241860.7 ENST00000491962.1 11.42866590  1 0.0007231959  0.0332898
-5  ENSG00000241860.7 ENST00000655252.1  0.99800937  1 0.3177926612  0.7897425
-6 ENSG00000228463.10 ENST00000442116.1 -0.03186604  1 1.0000000000  1.0000000
+          gene_id        feature_id          lr df       pvalue adj_pvalue
+1  ENSG00000241860.7 ENST00000484859.1  0.10925423  1 1.0000000000 1.00000000
+2  ENSG00000241860.7 ENST00000466557.6  0.09413004  1 1.0000000000 1.00000000
+3  ENSG00000241860.7 ENST00000662089.1  4.43238170  1 0.0352632682 0.29019308
+4  ENSG00000241860.7 ENST00000491962.1 13.73742817  1 0.0002102231 0.01361563
+5  ENSG00000241860.7 ENST00000655252.1  1.35295757  1 0.2447617350 0.69140984
+6 ENSG00000237094.12 ENST00000455464.7  0.03503514  1 1.0000000000 1.00000000
 ```
 ```
 write.table(res.txp.filt,"res.txp.filt.txt",sep="\t",quote=FALSE)
