@@ -402,3 +402,67 @@ dxd <- testForDEU(dxd, reducedModel=~sample + exon)
 })
 
 ```
+### Look at DEXSeq results
+```
+#if you are starting from saved results
+#load("afterTestForDEU.RData")
+dxr <- DEXSeqResults(dxd, independentFiltering=FALSE)
+qval <- perGeneQValue(dxr)
+dxr.g <- data.frame(gene=names(qval),qval)
+columns <- c("featureID","groupID","pvalue")
+dxr <- as.data.frame(dxr[,columns])
+head(dxr)
+```
+### Output:
+```
+#                                             featureID            groupID
+#ENSG00000241860.7:ENST00000484859.1  ENST00000484859.1  ENSG00000241860.7
+#ENSG00000241860.7:ENST00000466557.6  ENST00000466557.6  ENSG00000241860.7
+#ENSG00000241860.7:ENST00000662089.1  ENST00000662089.1  ENSG00000241860.7
+#ENSG00000241860.7:ENST00000491962.1  ENST00000491962.1  ENSG00000241860.7
+#ENSG00000241860.7:ENST00000655252.1  ENST00000655252.1  ENSG00000241860.7
+#ENSG00000237094.12:ENST00000455464.7 ENST00000455464.7 ENSG00000237094.12
+#                                         pvalue
+#ENSG00000241860.7:ENST00000484859.1  0.78245764
+#ENSG00000241860.7:ENST00000466557.6  0.01831049
+#ENSG00000241860.7:ENST00000662089.1  0.20590015
+#ENSG00000241860.7:ENST00000491962.1  0.94145980
+#ENSG00000241860.7:ENST00000655252.1  0.49742273
+#ENSG00000237094.12:ENST00000455464.7 0.04361211
+```
+```
+write.table(dxr,"DEXseq_result_dxr",sep="\t",quote=FALSE)
+library(stageR)
+strp <- function(x) substr(x,1,15)
+pConfirmation <- matrix(dxr$pvalue,ncol=1)
+dimnames(pConfirmation) <- list(strp(dxr$featureID),"transcript")
+pScreen <- qval
+names(pScreen) <- strp(names(pScreen))
+tx2gene <- as.data.frame(dxr[,c("featureID", "groupID")])
+for (i in 1:2) tx2gene[,i] <- strp(tx2gene[,i])
+
+stageRObj <- stageRTx(pScreen=pScreen, pConfirmation=pConfirmation,
+                      pScreenAdjusted=TRUE, tx2gene=tx2gene)
+stageRObj <- stageWiseAdjustment(stageRObj, method="dtu", alpha=0.05)
+suppressWarnings({
+  dex.padj <- getAdjustedPValues(stageRObj, order=FALSE,
+                                 onlySignificantGenes=TRUE)
+})
+
+head(dex.padj)
+```
+### Output:
+```
+#           geneID            txID        gene transcript
+#1 ENSG00000228794 ENST00000445118 0.005537052 0.00150867
+#2 ENSG00000228794 ENST00000669922 0.005537052 0.35596946
+#3 ENSG00000228794 ENST00000667414 0.005537052 0.11874327
+#4 ENSG00000228794 ENST00000658846 0.005537052 1.00000000
+#5 ENSG00000228794 ENST00000657837 0.005537052 1.00000000
+#6 ENSG00000188976 ENST00000327044 0.005323858 0.67044126
+```
+```
+dim(dex.padj)
+#[1] 12989     4
+ write.table(dex.padj,"DEXseq_Rstage_result_dex.padj",sep="\t",quote=FALSE)
+```
