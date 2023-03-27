@@ -63,7 +63,7 @@ samples2 <- read.table("~/Documents/SalmonTarget/TargetALSRNAMetadata09092021_12
 #coldata2 <- data.frame(files, names=names(files), samples2)
 pheno<-samples2[samples$sample_name,]
 ```
-## Get phenotype data for the motor cortex region - with new rules for cases/controls
+## Get phenotype data for the motor cortex region - with new rules for cases/controls, see https://github.com/rkabiljo/editPhenoTargetALS
 
 ## Read with tximport
 ```
