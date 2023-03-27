@@ -83,7 +83,8 @@ head(txiGenes$counts)
 colnames(txiGenes$counts)<-rownames(pheCortexAll)
 
 
-txiTranscripts <- tximport(files, type="salmon", txOut = TRUE)
+#txiTranscripts <- tximport(files, type="salmon", txOut = TRUE)
+txiTranscripts <- tximport(files, type="salmon", txOut =TRUE,countsFromAbundance = "scaledTPM",tx2gene=tx2gene)
 head(txiTranscripts$counts)
 dim(txiTranscripts$counts)
 #[1] 236186    272
