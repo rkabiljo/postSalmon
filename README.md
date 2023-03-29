@@ -395,7 +395,7 @@ filt <- smallProportionSD(d)
 res.txp.filt$pvalue[filt] <- 1 
 res.txp.filt$adj_pvalue[filt] <- 1
 
-idx <- which(res.txp.file$adj_pvalue < 0.05)
+idx <- which(res.txp.filt$adj_pvalue < 0.05)
 length(idx)
 #[1] 487
 
