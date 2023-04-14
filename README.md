@@ -74,10 +74,7 @@ txiTranscripts <- tximport(files, type="salmon", txOut =TRUE,countsFromAbundance
 
 
 ## DESeq2 with the gene tximport object
-see DESeq2_afterTximport.R
-
-## compare these results with our previous DE results on the same dataset
-See compareDESeqResWithDEPaper.R
+see DESeq2_afterTximport.R     To compare these results with our previous DE results on the same dataset see compareDESeqResWithDEPaper.R
 
 
 # DRIMSeq
