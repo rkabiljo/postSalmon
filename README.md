@@ -32,14 +32,7 @@ tx2gene <- select(txdb, keys = k, keytype = "GENEID", columns = "TXNAME")
 tx2gene<-tx2gene[,c(2,1)]
 write.table(as.data.frame(tx2gene), file="tx2gene.txt", sep="\t")
 ```
-## Get phenotype data for the motor cortex region  - OLD,IGNORE
-```
-cortexTarget<-read.table("~/Documents/SalmonTarget/samples.design.updated.site.sv1.sizefactors234.txt",header=TRUE,row.names = 1,sep="\t")
-dim(cortexTarget)
-samples2 <- read.table("~/Documents/SalmonTarget/TargetALSRNAMetadata09092021_1270.txt",sep="\t",header=TRUE,row.names=1)
-#coldata2 <- data.frame(files, names=names(files), samples2)
-pheno<-samples2[samples$sample_name,]
-```
+
 ## Get phenotype data for the motor cortex region - with new rules for cases/controls, see https://github.com/rkabiljo/editPhenoTargetALS
 
 ## Read with tximport
