@@ -349,6 +349,24 @@ save.image(file="afterTestForDEUTarget.RData")
 })
 
 ```
+If you want to add covariates to DEXSeq:
+```
+fullDesign <- ~sample+exon+ Sex:exon + AgeCat:exon + + PMDCat:exon  + RINCat:exon +  condition:exon 
+reducedDesign <-  ~sample+exon+ Sex:exon + AgeCat:exon + + PMDCat:exon  + RINCat:exon
+dxd <- DEXSeqDataSet(countData=count.data,
+                     sampleData=sample.data,
+                      design=fullDesign,
+                      featureID=counts(d)$feature_id,
+                      groupID=counts(d)$gene_id)
+                      
+system.time({
+dxd <- estimateSizeFactors(dxd)
+dxd <- estimateDispersions(dxd, quiet=TRUE)
+dxd <- testForDEU(dxd, reducedModel=reducedDesign)
+save.image(file="afterTestForDEUTarget.RData")
+})                      
+```
+
 ### Look at DEXSeq results
 ```
 #if you are starting from saved results
