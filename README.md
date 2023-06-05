@@ -122,9 +122,8 @@ counts(d[1,])[,1:4]
 #            gene_id        feature_id CGND.HRA.00596 CGND.HRA.00646
 #1 ENSG00000223972.5 ENST00000456328.2              0       1.115553
 
-n<-272
-#n.small<-36
-n.small<-37
+n = nrow(samps)
+n.small = min(table(samps$condition))
 
 d <- dmFilter(d,
                min_samps_feature_expr=n.small, min_feature_expr=10,
