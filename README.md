@@ -349,6 +349,7 @@ save.image(file="afterTestForDEUTarget.RData")
 
 ```
 ### If you want to add covariates to DEXSeq:
+Of course, make sure that these covariate columns are indeed included in the sample.data, which comes from DRIMSeq object, so originally from table called samps
 ```
 fullDesign <- ~sample+exon+ Sex:exon + AgeCat:exon + + PMDCat:exon  + RINCat:exon +  condition:exon 
 reducedDesign <-  ~sample+exon+ Sex:exon + AgeCat:exon + + PMDCat:exon  + RINCat:exon
