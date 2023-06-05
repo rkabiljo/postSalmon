@@ -326,7 +326,7 @@ length(idx)
 write.table(res.txp.filt,"res.txp.filt.txt",sep="\t",quote=FALSE)
 ```
 
-## DEXSeq - an alternative, starting from DRIM
+# DEXSeq - an alternative, starting from DRIM
 ```
 library(DEXSeq)
 sample.data <- DRIMSeq::samples(d)
@@ -349,7 +349,7 @@ save.image(file="afterTestForDEUTarget.RData")
 })
 
 ```
-If you want to add covariates to DEXSeq:
+### If you want to add covariates to DEXSeq:
 ```
 fullDesign <- ~sample+exon+ Sex:exon + AgeCat:exon + + PMDCat:exon  + RINCat:exon +  condition:exon 
 reducedDesign <-  ~sample+exon+ Sex:exon + AgeCat:exon + + PMDCat:exon  + RINCat:exon
