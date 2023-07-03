@@ -1,3 +1,9 @@
+# Post Salmon Analysis
+This is based on paper: https://pubmed.ncbi.nlm.nih.gov/30356428/ <br>
+
+Love MI, Soneson C, Patro R. Swimming downstream: statistical analysis of differential transcript usage following Salmon quantification. F1000Res. 2018 Jun 27;7:952. doi: 10.12688/f1000research.15398.3. PMID: 30356428; PMCID: PMC6178912.<br>
+
+
 
 
 ## Prepare txdb
